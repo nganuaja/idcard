@@ -127,16 +127,18 @@
 				padding: 8px;
 			}
 		}
+
     </style>
 </head>
-
 <body>
 	<div class="container">
         <div class="controls">
 			<h1 class="title">
-				<img src="assets/pakposkeren.png" alt="pakposkeren" height="100">
+				
+				<img src="assets/pakposkeren.png" alt="pakposkeren" height="70">
 				ID Card Creator
 			</h1>
+
 			<p class="title" style="margin-top:-20px; color:blue;"><i>by : pakposkeren (lagi)</i></p>
 			<hr><br>
             <label>
@@ -159,164 +161,200 @@
         <canvas id="backCard" width="340" height="540"></canvas>
     </div>
 
-    <script>
-        const frontCanvas  = document.getElementById('frontCard');
-        const backCanvas  = document.getElementById('backCard');
-        const frontCtx  = frontCanvas.getContext('2d');
-        const backCtx  = backCanvas.getContext('2d');
-		
-        const frontTemplate  = new Image();
-        frontTemplate .src = 'assets/depan.png';
+ <script>
+const frontCanvas = document.getElementById('frontCard');
+const backCanvas = document.getElementById('backCard');
+const frontCtx = frontCanvas.getContext('2d');
+const backCtx = backCanvas.getContext('2d');
 
-		const backTemplate = new Image();
-        backTemplate.src = 'assets/belakang.png';
-		
-        let photo = null;
-        let photoX = 0;
-        let photoY = 0;
-        let photoWidth = 100;
-        let photoHeight = 100;
-        let resizing = false;
-        let startX, startY;
+const frontTemplate = new Image();
+frontTemplate.src = 'assets/depan.png';
 
-        frontTemplate.onload = updateCanvas;
-        backTemplate.onload = updateCanvas;
+const backTemplate = new Image();
+backTemplate.src = 'assets/belakang.png';
 
-        frontCanvas.addEventListener('mousedown', (event) => {
-            const rect = frontCanvas.getBoundingClientRect();
-            startX = event.clientX - rect.left;
-            startY = event.clientY - rect.top;
+let photo = null;
+let photoX = 0;
+let photoY = 0;
+let photoWidth = 100;
+let photoHeight = 100;
+let resizing = false;
+let startX, startY;
 
-            if (
-                startX > photoX &&
-                startX < photoX + photoWidth &&
-                startY > photoY &&
-                startY < photoY + photoHeight
-            ) {
-                resizing = true;
-                frontCanvas.addEventListener('mousemove', resizePhoto);
-                frontCanvas.addEventListener('mouseup', stopResize);
-            } else {
-                frontCanvas.addEventListener('mousemove', movePhoto);
-                frontCanvas.addEventListener('mouseup', stopMove);
+frontTemplate.onload = updateCanvas;
+backTemplate.onload = updateCanvas;
+
+function getTouchPosition(canvas, touchEvent) {
+    const rect = canvas.getBoundingClientRect();
+    const touch = touchEvent.touches[0];
+    return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+    };
+}
+
+frontCanvas.addEventListener('mousedown', handleStart);
+frontCanvas.addEventListener('touchstart', handleStart);
+
+function handleStart(event) {
+    event.preventDefault();
+    const rect = frontCanvas.getBoundingClientRect();
+    const pos = event.type === 'touchstart'
+        ? getTouchPosition(frontCanvas, event)
+        : { x: event.clientX - rect.left, y: event.clientY - rect.top };
+
+    startX = pos.x;
+    startY = pos.y;
+
+    if (
+        startX > photoX &&
+        startX < photoX + photoWidth &&
+        startY > photoY &&
+        startY < photoY + photoHeight
+    ) {
+        resizing = true;
+        frontCanvas.addEventListener('mousemove', resizePhoto);
+        frontCanvas.addEventListener('mouseup', stopResize);
+        frontCanvas.addEventListener('touchmove', resizePhoto);
+        frontCanvas.addEventListener('touchend', stopResize);
+    } else {
+        frontCanvas.addEventListener('mousemove', movePhoto);
+        frontCanvas.addEventListener('mouseup', stopMove);
+        frontCanvas.addEventListener('touchmove', movePhoto);
+        frontCanvas.addEventListener('touchend', stopMove);
+    }
+}
+
+function movePhoto(event) {
+    event.preventDefault();
+    const rect = frontCanvas.getBoundingClientRect();
+    const pos = event.type === 'touchmove'
+        ? getTouchPosition(frontCanvas, event)
+        : { x: event.clientX - rect.left, y: event.clientY - rect.top };
+
+    photoX = pos.x - photoWidth / 2;
+    photoY = pos.y - photoHeight / 2;
+    updateCanvas();
+}
+
+function stopMove() {
+    frontCanvas.removeEventListener('mousemove', movePhoto);
+    frontCanvas.removeEventListener('mouseup', stopMove);
+    frontCanvas.removeEventListener('touchmove', movePhoto);
+    frontCanvas.removeEventListener('touchend', stopMove);
+}
+
+function resizePhoto(event) {
+    event.preventDefault();
+    const rect = frontCanvas.getBoundingClientRect();
+    const pos = event.type === 'touchmove'
+        ? getTouchPosition(frontCanvas, event)
+        : { x: event.clientX - rect.left, y: event.clientY - rect.top };
+
+    const newWidth = pos.x - photoX;
+    const newHeight = pos.y - photoY;
+
+    if (newWidth > 20 && newHeight > 20) {
+        photoWidth = newWidth;
+        photoHeight = newHeight;
+        updateCanvas();
+    }
+}
+
+function stopResize() {
+    resizing = false;
+    frontCanvas.removeEventListener('mousemove', resizePhoto);
+    frontCanvas.removeEventListener('mouseup', stopResize);
+    frontCanvas.removeEventListener('touchmove', resizePhoto);
+    frontCanvas.removeEventListener('touchend', stopResize);
+}
+
+function capitalizeWords(str) {
+    return str.replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function updateCanvas() {
+    frontCtx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
+    frontCtx.drawImage(frontTemplate, 0, 0, frontCanvas.width, frontCanvas.height);
+
+    let name = document.getElementById('name').value;
+    name = capitalizeWords(name);
+    const idNumber = document.getElementById('idNumber').value;
+
+    if (photo) {
+        frontCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
+        backCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
+    }
+
+    frontCtx.font = 'normal 22px Ebrima';
+    frontCtx.fillStyle = 'white';
+    frontCtx.fillText(name, 33, 177);
+
+    frontCtx.font = '16px Ebrima';
+    frontCtx.fillText(`NIPPOS. ${idNumber}`, 33, 199);
+
+    backCtx.clearRect(0, 0, backCanvas.width, backCanvas.height);
+    backCtx.drawImage(backTemplate, 0, 0, backCanvas.width, backCanvas.height);
+
+    backCtx.font = 'normal 20px Ebrima';
+    backCtx.fillStyle = 'white';
+    backCtx.fillText(name, 34, 85);
+
+    backCtx.font = '14px Ebrima';
+    backCtx.fillText(`NIPPOS. ${idNumber}`, 34, 103);
+}
+
+function processPhoto() {
+    const file = document.getElementById('photoUpload').files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image_file', file);
+
+    fetch('https://api.remove.bg/v1.0/removebg', {
+        method: 'POST',
+        headers: {
+            'X-Api-Key': 'eLkxc2Q5opqoYYAMXpcTHnsD'
+        },
+        body: formData
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        });
-
-        function movePhoto(event) {
-            const rect = frontCanvas.getBoundingClientRect();
-            photoX = event.clientX - rect.left - photoWidth / 2;
-            photoY = event.clientY - rect.top - photoHeight / 2;
-            updateCanvas();
-        }
-
-        function stopMove() {
-            frontCanvas.removeEventListener('mousemove', movePhoto);
-            frontCanvas.removeEventListener('mouseup', stopMove);
-        }
-
-        function resizePhoto(event) {
-            const rect = frontCanvas.getBoundingClientRect();
-            const newWidth = event.clientX - rect.left - photoX;
-            const newHeight = event.clientY - rect.top - photoY;
-
-            if (newWidth > 20 && newHeight > 20) {
-                photoWidth = newWidth;
-                photoHeight = newHeight;
+            return response.blob();
+        })
+        .then((blob) => {
+            const url = URL.createObjectURL(blob);
+            photo = new Image();
+            photo.onload = () => {
                 updateCanvas();
-            }
-        }
+            };
+            photo.src = url;
+        })
+        .catch((error) => {
+            alert('Gagal memproses foto: ' + error.message);
+            updateCanvas(); 
+        });
+}
 
-        function stopResize() {
-            resizing = false;
-            frontCanvas.removeEventListener('mousemove', resizePhoto);
-            frontCanvas.removeEventListener('mouseup', stopResize);
-        }
+function downloadCanvas() {
+    let name = document.getElementById('name').value;
+    name = capitalizeWords(name).replace(/[^a-zA-Z0-9]/g, '_');
 
-        function capitalizeWords(str) {
-            return str.replace(/\b\w/g, char => char.toUpperCase());
-        }
+    // Download file untuk sisi depan
+    const frontLink = document.createElement('a');
+    frontLink.download = `${name}_depan.png`;
+    frontLink.href = frontCanvas.toDataURL();
+    frontLink.click();
 
-        function updateCanvas() {
-            frontCtx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
-            frontCtx.drawImage(frontTemplate, 0, 0, frontCanvas.width, frontCanvas.height);
+    // Download file untuk sisi belakang
+    const backLink = document.createElement('a');
+    backLink.download = `${name}_belakang.png`;
+    backLink.href = backCanvas.toDataURL();
+    backLink.click();
+}
+</script>
 
-            let name = document.getElementById('name').value;
-            name = capitalizeWords(name);
-            const idNumber = document.getElementById('idNumber').value;
-
-            if (photo) {
-                frontCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
-                backCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
-            }
-
-            frontCtx.font = 'normal 22px Ebrima';
-            frontCtx.fillStyle = 'white';
-            frontCtx.fillText(name, 33, 177);
-
-            frontCtx.font = ' 16px Ebrima';
-            frontCtx.fillText(`NIPPOS. ${idNumber}`, 33, 199);
-			
-			backCtx.clearRect(0, 0, backCanvas.width, backCanvas.height);
-            backCtx.drawImage(backTemplate, 0, 0, backCanvas.width, backCanvas.height);
-
-            backCtx.font = 'normal 20px Ebrima';
-            backCtx.fillStyle = 'white';
-            backCtx.fillText(name, 34, 85);
-
-            backCtx.font = ' 14px Ebrima';
-            backCtx.fillText(`NIPPOS. ${idNumber}`, 34, 103);
-        }
-
-        function processPhoto() {
-            const file = document.getElementById('photoUpload').files[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append('image_file', file);
-
-            fetch('https://api.remove.bg/v1.0/removebg', {
-                method: 'POST',
-                headers: {
-                    'X-Api-Key': 'eLkxc2Q5opqoYYAMXpcTHnsD'
-                },
-                body: formData
-            })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.blob();
-                })
-                .then((blob) => {
-                    const url = URL.createObjectURL(blob);
-                    photo = new Image();
-                    photo.onload = () => {
-                        updateCanvas();
-                    };
-                    photo.src = url;
-                })
-                .catch((error) => {
-                    alert('Gagal memproses foto: ' + error.message);
-                    updateCanvas(); // Ensure canvas updates to retain text
-                });
-        }
-
-		function downloadCanvas() {
-			let name = document.getElementById('name').value;
-			name = capitalizeWords(name).replace(/[^a-zA-Z0-9]/g, '_'); // Bersihkan nama agar valid untuk nama file
-
-			// Download file untuk sisi depan
-			const frontLink = document.createElement('a');
-			frontLink.download = `${name}_depan.png`; // Nama file menjadi nama_depan.png
-			frontLink.href = frontCanvas.toDataURL();
-			frontLink.click();
-
-			// Download file untuk sisi belakang
-			const backLink = document.createElement('a');
-			backLink.download = `${name}_belakang.png`; // Nama file menjadi nama_belakang.png
-			backLink.href = backCanvas.toDataURL();
-			backLink.click();
-		}
-    </script>
 </body>
 </html>
