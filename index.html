@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Card Creator | pakposkeren</title>
+	<link rel="icon" href="assets/pakposkeren.png" type="image/x-icon">
+    <style>
+ body {
+    font-family: Ebrima, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap; /* Membuat elemen turun ke bawah di layar kecil */
+    gap: 20px;
+    justify-content: center; /* Elemen rata tengah pada layar kecil */
+    align-items: flex-start;
+    padding: 10px;
+}
+
+.controls {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.controls label {
+    display: block;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #333;
+    font-weight: bold; /* Menjadikan teks tebal */
+}
+
+.controls label input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.controls label input[type="file"] {
+    padding: 3px;
+}
+
+.controls button {
+    display: inline-block;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.controls button:hover {
+    background-color: #0056b3;
+}
+
+.controls button:active {
+    background-color: #004085;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Kurangi jarak di layar kecil */
+    flex-wrap: wrap; /* Membungkus teks dan gambar jika ruang tidak cukup */
+    text-align: center;
+    justify-content: center;
+}
+
+.title img {
+    display: inline-block;
+    max-width: 100%; /* Agar gambar menyesuaikan ukuran layar */
+    height: auto;
+}
+
+canvas {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Pastikan menyesuaikan lebar */
+    max-width: 300px; /* Batas maksimum lebar */
+    box-sizing: border-box;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .controls {
+        max-width: 100%; /* Memanfaatkan seluruh lebar layar */
+    }
+    
+    .title {
+        flex-direction: column; /* Teks dan gambar ditumpuk */
+        gap: 5px;
+    }
+
+    canvas {
+        max-width: 100%; /* Sesuaikan dengan layar kecil */
+    }
+}
+
+@media (max-width: 480px) {
+    .controls button {
+        font-size: 14px; /* Kurangi ukuran font di layar kecil */
+        padding: 8px;
+    }
+}
+
+    </style>
+</head>
+<body>
+	<div class="container">
+        <div class="controls">
+			<h1 class="title">
+				ID Card Creator
+				<img src="assets/pakposkeren.png" alt="pakposkeren" height="70">
+			</h1>
+
+			<p style="margin-top:-20px; color:blue;"><i>by : pakposkeren (lagi)</i></p>
+			<hr><br>
+            <label>
+                Nama :
+                <input type="text" id="name" placeholder="Masukkan Nama" oninput="updateCanvas()">
+            </label>
+            <label>
+                NIPPOS :
+                <input type="text" id="idNumber" placeholder="Masukkan NIPPOS" oninput="updateCanvas()">
+            </label>
+            <label>
+                Foto Diri :
+                <input type="file" id="photoUpload" accept="image/*" onchange="processPhoto()">
+            </label>
+			<p style="font-size:12px;">* Latar pada foto diri akan secara otomatis dihapus menggunakan AI.</p>
+            <br><br><hr>
+			<button onclick="downloadCanvas()">Download</button>
+        </div>
+        <canvas id="frontCard" width="340" height="540"></canvas>
+        <canvas id="backCard" width="340" height="540"></canvas>
+    </div>
+
+    <script>
+        const frontCanvas  = document.getElementById('frontCard');
+        const backCanvas  = document.getElementById('backCard');
+        const frontCtx  = frontCanvas.getContext('2d');
+        const backCtx  = backCanvas.getContext('2d');
+		
+        const frontTemplate  = new Image();
+        frontTemplate .src = 'assets/depan.png';
+
+		const backTemplate = new Image();
+        backTemplate.src = 'assets/belakang.png';
+		
+        let photo = null;
+        let photoX = 0;
+        let photoY = 0;
+        let photoWidth = 100;
+        let photoHeight = 100;
+        let resizing = false;
+        let startX, startY;
+
+        frontTemplate.onload = updateCanvas;
+        backTemplate.onload = updateCanvas;
+
+        frontCanvas.addEventListener('mousedown', (event) => {
+            const rect = frontCanvas.getBoundingClientRect();
+            startX = event.clientX - rect.left;
+            startY = event.clientY - rect.top;
+
+            if (
+                startX > photoX &&
+                startX < photoX + photoWidth &&
+                startY > photoY &&
+                startY < photoY + photoHeight
+            ) {
+                resizing = true;
+                frontCanvas.addEventListener('mousemove', resizePhoto);
+                frontCanvas.addEventListener('mouseup', stopResize);
+            } else {
+                frontCanvas.addEventListener('mousemove', movePhoto);
+                frontCanvas.addEventListener('mouseup', stopMove);
+            }
+        });
+
+        function movePhoto(event) {
+            const rect = frontCanvas.getBoundingClientRect();
+            photoX = event.clientX - rect.left - photoWidth / 2;
+            photoY = event.clientY - rect.top - photoHeight / 2;
+            updateCanvas();
+        }
+
+        function stopMove() {
+            frontCanvas.removeEventListener('mousemove', movePhoto);
+            frontCanvas.removeEventListener('mouseup', stopMove);
+        }
+
+        function resizePhoto(event) {
+            const rect = frontCanvas.getBoundingClientRect();
+            const newWidth = event.clientX - rect.left - photoX;
+            const newHeight = event.clientY - rect.top - photoY;
+
+            if (newWidth > 20 && newHeight > 20) {
+                photoWidth = newWidth;
+                photoHeight = newHeight;
+                updateCanvas();
+            }
+        }
+
+        function stopResize() {
+            resizing = false;
+            frontCanvas.removeEventListener('mousemove', resizePhoto);
+            frontCanvas.removeEventListener('mouseup', stopResize);
+        }
+
+        function capitalizeWords(str) {
+            return str.replace(/\b\w/g, char => char.toUpperCase());
+        }
+
+        function updateCanvas() {
+            frontCtx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
+            frontCtx.drawImage(frontTemplate, 0, 0, frontCanvas.width, frontCanvas.height);
+
+            let name = document.getElementById('name').value;
+            name = capitalizeWords(name);
+            const idNumber = document.getElementById('idNumber').value;
+
+            if (photo) {
+                frontCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
+                backCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
+            }
+
+            frontCtx.font = 'normal 22px Ebrima';
+            frontCtx.fillStyle = 'white';
+            frontCtx.fillText(name, 33, 177);
+
+            frontCtx.font = ' 16px Ebrima';
+            frontCtx.fillText(`NIPPOS. ${idNumber}`, 33, 199);
+			
+			backCtx.clearRect(0, 0, backCanvas.width, backCanvas.height);
+            backCtx.drawImage(backTemplate, 0, 0, backCanvas.width, backCanvas.height);
+
+            backCtx.font = 'normal 20px Ebrima';
+            backCtx.fillStyle = 'white';
+            backCtx.fillText(name, 34, 85);
+
+            backCtx.font = ' 14px Ebrima';
+            backCtx.fillText(`NIPPOS. ${idNumber}`, 34, 103);
+        }
+
+        function processPhoto() {
+            const file = document.getElementById('photoUpload').files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image_file', file);
+
+            fetch('https://api.remove.bg/v1.0/removebg', {
+                method: 'POST',
+                headers: {
+                    'X-Api-Key': 'eLkxc2Q5opqoYYAMXpcTHnsD'
+                },
+                body: formData
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.blob();
+                })
+                .then((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    photo = new Image();
+                    photo.onload = () => {
+                        updateCanvas();
+                    };
+                    photo.src = url;
+                })
+                .catch((error) => {
+                    alert('Gagal memproses foto: ' + error.message);
+                    updateCanvas(); // Ensure canvas updates to retain text
+                });
+        }
+
+		function downloadCanvas() {
+			let name = document.getElementById('name').value;
+			name = capitalizeWords(name).replace(/[^a-zA-Z0-9]/g, '_'); // Bersihkan nama agar valid untuk nama file
+
+			// Download file untuk sisi depan
+			const frontLink = document.createElement('a');
+			frontLink.download = `${name}_depan.png`; // Nama file menjadi nama_depan.png
+			frontLink.href = frontCanvas.toDataURL();
+			frontLink.click();
+
+			// Download file untuk sisi belakang
+			const backLink = document.createElement('a');
+			backLink.download = `${name}_belakang.png`; // Nama file menjadi nama_belakang.png
+			backLink.href = backCanvas.toDataURL();
+			backLink.click();
+		}
+    </script>
+</body>
+</html>
