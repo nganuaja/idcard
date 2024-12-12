@@ -20,9 +20,9 @@
 
 		.container {
 			display: flex;
-			flex-wrap: wrap; /* Membuat elemen turun ke bawah di layar kecil */
+			flex-wrap: wrap;
 			gap: 20px;
-			justify-content: center; /* Elemen rata tengah pada layar kecil */
+			justify-content: center;
 			align-items: flex-start;
 			padding: 10px;
 		}
@@ -32,7 +32,7 @@
 			padding: 20px;
 			border-radius: 8px;
 			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-			max-width: 400px;
+			max-width: 250px;
 			width: 100%;
 			box-sizing: border-box;
 		}
@@ -42,7 +42,7 @@
 			margin-bottom: 15px;
 			font-size: 14px;
 			color: #333;
-			font-weight: bold; /* Menjadikan teks tebal */
+			font-weight: bold;
 		}
 
 		.controls label input {
@@ -56,14 +56,41 @@
 		}
 
 		.controls label input[type="file"] {
-			padding: 3px;
+			padding: 8px;
 		}
 
+		.controls label input[type="range"] {
+			padding: 0px;
+		}
+		
+		.controls .reset {
+			width: auto;
+			margin: 0 auto;
+		//	margin-left: 0 auto;
+			margin-bottom: 40px;
+			display: block;
+			padding: 10px;
+			background-color: #007bff;
+			color: #fff;
+			border-radius: 4px;
+			font-size: 14px;
+			cursor: pointer;
+			transition:background-color 0.3s ease; 
+		}
+		
+		.controls .reset:hover {
+			background-color: #0056b3;
+		}
+
+		.controls .reset:active {
+			background-color: #004085;
+		}
+		
 		.controls button {
 			display: inline-block;
 			width: 100%;
 			padding: 10px;
-			background-color: #007bff;
+			background-color: #8d0aff;
 			color: #fff;
 			border: none;
 			border-radius: 4px;
@@ -71,289 +98,390 @@
 			cursor: pointer;
 			transition: background-color 0.3s ease;
 		}
-
+		
+		.controls span {
+			font-size: 16px;
+			color: #555;
+		}
+		
 		.controls button:hover {
-			background-color: #0056b3;
+			background-color: #7904de;
 		}
 
 		.controls button:active {
-			background-color: #004085;
+			background-color: #6202b5;
 		}
 
 		.title {
 			display: flex;
 			align-items: center;
-			gap: 10px; /* Kurangi jarak di layar kecil */
-			flex-wrap: wrap; /* Membungkus teks dan gambar jika ruang tidak cukup */
+			gap: 10px;
+			flex-wrap: wrap;
 			text-align: center;
 			justify-content: center;
 		}
 
 		.title img {
 			display: inline-block;
-			max-width: 100%; /* Agar gambar menyesuaikan ukuran layar */
+			max-width: 100%;
 			height: auto;
+			margin-top: -20px;
 		}
 
+		.title p {
+			margin-top: -10px;
+			margin-bottom: -10px;
+			font-size: 15px;
+			font-weight: normal;
+			color: #8d0aff;
+		}
+		
 		canvas {
 			background: #fff;
 			border: 1px solid #ddd;
 			border-radius: 8px;
 			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-			width: 100%; /* Pastikan menyesuaikan lebar */
-			max-width: 300px; /* Batas maksimum lebar */
+			width: 100%;
+			max-width: 300px;
 			box-sizing: border-box;
 		}
 
-		/* Media Queries */
 		@media (max-width: 768px) {
 			.controls {
-				max-width: 100%; /* Memanfaatkan seluruh lebar layar */
+				max-width: 80%;
 			}
 			
 			.title {
-				flex-direction: column; /* Teks dan gambar ditumpuk */
+				flex-direction: column;
 				gap: 5px;
 			}
 
 			canvas {
-				max-width: 100%; /* Sesuaikan dengan layar kecil */
+				max-width: 80%;
 			}
 		}
 
 		@media (max-width: 480px) {
 			.controls button {
-				font-size: 14px; /* Kurangi ukuran font di layar kecil */
+				font-size: 14px;
 				padding: 8px;
 			}
 		}
-
     </style>
 </head>
 <body>
 	<div class="container">
         <div class="controls">
-			<h1 class="title">
-				
+			<h2 class="title">
 				<img src="assets/pakposkeren.png" alt="pakposkeren" height="70">
 				ID Card Creator
-			</h1>
-
-			<p class="title" style="margin-top:-20px; color:blue;"><i>by : pakposkeren (lagi)</i></p>
-			<hr><br>
-            <label>
+				<p><i>by : pakposkeren (lagi)</i></p>
+			</h2>
+			<hr>
+			<p class="title" style="font-weight:bold;"><u>Input Data</u></p>
+            <label for="name">
                 Nama :
                 <input type="text" id="name" placeholder="Masukkan Nama" oninput="updateCanvas()">
             </label>
-            <label>
+            <label for="idNumber">
                 NIPPOS :
                 <input type="text" id="idNumber" placeholder="Masukkan NIPPOS" oninput="updateCanvas()">
             </label>
-            <label>
+            <label for="photoUpload">
                 Foto Diri :
                 <input type="file" id="photoUpload" accept="image/*" onchange="processPhoto()">
             </label>
 			<p style="font-size:12px;">* Latar pada foto diri akan secara otomatis dihapus menggunakan AI.</p>
-            <br><br><hr>
-			<button onclick="downloadCanvas()">Download</button>
         </div>
-        <canvas id="frontCard" width="340" height="540"></canvas>
+
+		<div class="controls">
+			<p class="title" style="font-weight:bold;"><u>Pengaturan Foto</u></p>
+			<label for="brightnessBar">
+				Brightness:
+				<span id="brightnessValue">50%</span>
+				<input type="range" id="brightnessBar" min="0" max="100" value="50">
+			</label>
+
+			<label for="contrastBar">
+				Contrast:
+				<span id="contrastValue">50%</span>
+				<input type="range" id="contrastBar" min="0" max="100" value="50">
+			</label>
+
+			<label for="saturationBar">
+				Saturation:
+				<span id="saturationValue">50%</span>
+				<input type="range" id="saturationBar" min="0" max="100" value="50">
+			</label>
+
+			<label for="sharpnessBar">
+				Sharpness:
+				<span id="sharpnessValue">10</span>
+				<input type="range" id="sharpnessBar" min="0" max="10" value="10">
+			</label>
+			<button class="reset" 
+				onclick="resetSettings()" title="Reset Settings">
+				&#x21BA; Reset Pengaturan
+			</button>
+
+			<br>
+			<hr>
+			<button onclick="downloadCanvas()">Download</button>
+		</div>
+		
+		<canvas id="frontCard" width="340" height="540"></canvas>
         <canvas id="backCard" width="340" height="540"></canvas>
     </div>
 
- <script>
-const frontCanvas = document.getElementById('frontCard');
-const backCanvas = document.getElementById('backCard');
-const frontCtx = frontCanvas.getContext('2d');
-const backCtx = backCanvas.getContext('2d');
+<script>
+	const frontCanvas = document.getElementById('frontCard');
+	const backCanvas = document.getElementById('backCard');
+	const frontCtx = frontCanvas.getContext('2d');
+	const backCtx = backCanvas.getContext('2d');
 
-const frontTemplate = new Image();
-frontTemplate.src = 'assets/depan.png';
+	const frontTemplate = new Image();
+	frontTemplate.src = 'assets/depan.png';
 
-const backTemplate = new Image();
-backTemplate.src = 'assets/belakang.png';
+	const backTemplate = new Image();
+	backTemplate.src = 'assets/belakang.png';
 
-let photo = null;
-let photoX = 0;
-let photoY = 0;
-let photoWidth = 100;
-let photoHeight = 100;
-let resizing = false;
-let startX, startY;
+	let photo = null;
+	let photoX = 0;
+	let photoY = 0;
+	let photoWidth = 100;
+	let photoHeight = 100;
+	let resizing = false;
+	let startX, startY;
 
-frontTemplate.onload = updateCanvas;
-backTemplate.onload = updateCanvas;
+	let brightness = 100;
+	let contrast = 100;
+	let saturation = 100;
+	let sharpness = 0;
 
-function getTouchPosition(canvas, touchEvent) {
-    const rect = canvas.getBoundingClientRect();
-    const touch = touchEvent.touches[0];
-    return {
-        x: touch.clientX - rect.left,
-        y: touch.clientY - rect.top
-    };
+	frontTemplate.onload = updateCanvas;
+	backTemplate.onload = updateCanvas;
+
+	function getTouchPosition(canvas, touchEvent) {
+		const rect = canvas.getBoundingClientRect();
+		const touch = touchEvent.touches[0];
+		return {
+			x: touch.clientX - rect.left,
+			y: touch.clientY - rect.top
+		};
+	}
+
+	frontCanvas.addEventListener('mousedown', handleStart);
+	frontCanvas.addEventListener('touchstart', handleStart);
+
+	function handleStart(event) {
+		event.preventDefault();
+		const rect = frontCanvas.getBoundingClientRect();
+		const pos = event.type === 'touchstart'
+			? getTouchPosition(frontCanvas, event)
+			: { x: event.clientX - rect.left, y: event.clientY - rect.top };
+
+		startX = pos.x;
+		startY = pos.y;
+
+		if (
+			startX > photoX &&
+			startX < photoX + photoWidth &&
+			startY > photoY &&
+			startY < photoY + photoHeight
+		) {
+			resizing = true;
+			frontCanvas.addEventListener('mousemove', resizePhoto);
+			frontCanvas.addEventListener('mouseup', stopResize);
+			frontCanvas.addEventListener('touchmove', resizePhoto);
+			frontCanvas.addEventListener('touchend', stopResize);
+		} else {
+			frontCanvas.addEventListener('mousemove', movePhoto);
+			frontCanvas.addEventListener('mouseup', stopMove);
+			frontCanvas.addEventListener('touchmove', movePhoto);
+			frontCanvas.addEventListener('touchend', stopMove);
+		}
+	}
+
+	function movePhoto(event) {
+		event.preventDefault();
+		const rect = frontCanvas.getBoundingClientRect();
+		const pos = event.type === 'touchmove'
+			? getTouchPosition(frontCanvas, event)
+			: { x: event.clientX - rect.left, y: event.clientY - rect.top };
+
+		photoX = pos.x - photoWidth / 2;
+		photoY = pos.y - photoHeight / 2;
+		updateCanvas();
+	}
+
+	function stopMove() {
+		frontCanvas.removeEventListener('mousemove', movePhoto);
+		frontCanvas.removeEventListener('mouseup', stopMove);
+		frontCanvas.removeEventListener('touchmove', movePhoto);
+		frontCanvas.removeEventListener('touchend', stopMove);
+	}
+
+	function resizePhoto(event) {
+		event.preventDefault();
+		const rect = frontCanvas.getBoundingClientRect();
+		const pos = event.type === 'touchmove'
+			? getTouchPosition(frontCanvas, event)
+			: { x: event.clientX - rect.left, y: event.clientY - rect.top };
+
+		const newWidth = pos.x - photoX;
+		const newHeight = pos.y - photoY;
+
+		if (newWidth > 20 && newHeight > 20) {
+			photoWidth = newWidth;
+			photoHeight = newHeight;
+			updateCanvas();
+		}
+	}
+
+	function stopResize() {
+		resizing = false;
+		frontCanvas.removeEventListener('mousemove', resizePhoto);
+		frontCanvas.removeEventListener('mouseup', stopResize);
+		frontCanvas.removeEventListener('touchmove', resizePhoto);
+		frontCanvas.removeEventListener('touchend', stopResize);
+	}
+
+	function capitalizeWords(str) {
+		return str.replace(/\b\w/g, char => char.toUpperCase());
+	}
+
+	function updateCanvas() {
+		frontCtx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
+		frontCtx.drawImage(frontTemplate, 0, 0, frontCanvas.width, frontCanvas.height);
+
+		let name = document.getElementById('name').value;
+		name = capitalizeWords(name);
+		const idNumber = document.getElementById('idNumber').value;
+
+		if (photo) {
+			<!-- frontCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturation(${saturation}%) sharpness(${sharpness}%)`; -->
+			frontCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) blur(${10 - sharpness}px)`;
+			frontCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
+			frontCtx.filter = 'none';
+
+			<!-- backCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturation(${saturation}%) sharpness(${sharpness}%)`; -->
+			<!-- backCtx.filter = `brightness(${brightness}%) contrast(${contrast}%)`; -->
+			backCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
+			backCtx.filter = 'none';
+		}
+
+		frontCtx.font = 'normal 22px Ebrima';
+		frontCtx.fillStyle = 'white';
+		frontCtx.fillText(name, 33, 177);
+
+		frontCtx.font = '16px Ebrima';
+		frontCtx.fillText(`NIPPOS. ${idNumber}`, 33, 199);
+
+		backCtx.clearRect(0, 0, backCanvas.width, backCanvas.height);
+		backCtx.drawImage(backTemplate, 0, 0, backCanvas.width, backCanvas.height);
+
+		backCtx.font = 'normal 20px Ebrima';
+		backCtx.fillStyle = 'white';
+		backCtx.fillText(name, 34, 85);
+
+		backCtx.font = '14px Ebrima';
+		backCtx.fillText(`NIPPOS. ${idNumber}`, 34, 105);
+	}
+
+	function processPhoto() {
+		const file = document.getElementById('photoUpload').files[0];
+		if (!file) return;
+
+		const formData = new FormData();
+		formData.append('image_file', file);
+
+		fetch('https://api.remove.bg/v1.0/removebg', {
+			method: 'POST',
+			headers: {
+				'X-Api-Key': 'eLkxc2Q5opqoYYAMXpcTHnsD'
+			},
+			body: formData
+		})
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
+				return response.blob();
+			})
+			.then((blob) => {
+				const url = URL.createObjectURL(blob);
+				photo = new Image();
+				photo.onload = () => {
+					updateCanvas();
+				};
+				photo.src = url;
+			})
+			.catch((error) => {
+				alert('Gagal memproses foto: ' + error.message);
+				updateCanvas(); 
+			});
+	}
+
+	function downloadCanvas() {
+		let name = document.getElementById('name').value;
+		name = capitalizeWords(name).replace(/[^a-zA-Z0-9]/g, '_');
+
+		// Download file untuk sisi depan
+		const frontLink = document.createElement('a');
+		frontLink.download = `${name}_depan.png`;
+		frontLink.href = frontCanvas.toDataURL();
+		frontLink.click();
+
+		// Download file untuk sisi belakang
+		const backLink = document.createElement('a');
+		backLink.download = `${name}_belakang.png`;
+		backLink.href = backCanvas.toDataURL();
+		backLink.click();
+	}
+
+	// Pengaturan brightness dan contrast
+const brightnessBar = document.getElementById('brightnessBar');
+const contrastBar = document.getElementById('contrastBar');
+const saturationBar = document.getElementById('saturationBar');
+const sharpnessBar = document.getElementById('sharpnessBar');
+
+const brightnessValue = document.getElementById('brightnessValue');
+const contrastValue = document.getElementById('contrastValue');
+const saturationValue = document.getElementById('saturationValue');
+const sharpnessValue = document.getElementById('sharpnessValue');
+
+// Update displayed value when range changes
+brightnessBar.addEventListener('input', () => {
+  brightnessValue.textContent = `${brightnessBar.value}%`;
+});
+
+contrastBar.addEventListener('input', () => {
+  contrastValue.textContent = `${contrastBar.value}%`;
+});
+
+saturationBar.addEventListener('input', () => {
+  saturationValue.textContent = `${saturationBar.value}%`;
+});
+
+sharpnessBar.addEventListener('input', () => {
+  sharpnessValue.textContent = sharpnessBar.value;
+});
+
+// Reset all settings
+function resetSettings() {
+  brightnessBar.value = 50;
+  contrastBar.value = 50;
+  saturationBar.value = 50;
+  sharpnessBar.value = 10;
+
+  brightnessValue.textContent = `50%`;
+  contrastValue.textContent = `50%`;
+  saturationValue.textContent = `50%`;
+  sharpnessValue.textContent = `10`;
+
+  updateCanvas(); // Optional if you need to refresh the canvas
 }
 
-frontCanvas.addEventListener('mousedown', handleStart);
-frontCanvas.addEventListener('touchstart', handleStart);
-
-function handleStart(event) {
-    event.preventDefault();
-    const rect = frontCanvas.getBoundingClientRect();
-    const pos = event.type === 'touchstart'
-        ? getTouchPosition(frontCanvas, event)
-        : { x: event.clientX - rect.left, y: event.clientY - rect.top };
-
-    startX = pos.x;
-    startY = pos.y;
-
-    if (
-        startX > photoX &&
-        startX < photoX + photoWidth &&
-        startY > photoY &&
-        startY < photoY + photoHeight
-    ) {
-        resizing = true;
-        frontCanvas.addEventListener('mousemove', resizePhoto);
-        frontCanvas.addEventListener('mouseup', stopResize);
-        frontCanvas.addEventListener('touchmove', resizePhoto);
-        frontCanvas.addEventListener('touchend', stopResize);
-    } else {
-        frontCanvas.addEventListener('mousemove', movePhoto);
-        frontCanvas.addEventListener('mouseup', stopMove);
-        frontCanvas.addEventListener('touchmove', movePhoto);
-        frontCanvas.addEventListener('touchend', stopMove);
-    }
-}
-
-function movePhoto(event) {
-    event.preventDefault();
-    const rect = frontCanvas.getBoundingClientRect();
-    const pos = event.type === 'touchmove'
-        ? getTouchPosition(frontCanvas, event)
-        : { x: event.clientX - rect.left, y: event.clientY - rect.top };
-
-    photoX = pos.x - photoWidth / 2;
-    photoY = pos.y - photoHeight / 2;
-    updateCanvas();
-}
-
-function stopMove() {
-    frontCanvas.removeEventListener('mousemove', movePhoto);
-    frontCanvas.removeEventListener('mouseup', stopMove);
-    frontCanvas.removeEventListener('touchmove', movePhoto);
-    frontCanvas.removeEventListener('touchend', stopMove);
-}
-
-function resizePhoto(event) {
-    event.preventDefault();
-    const rect = frontCanvas.getBoundingClientRect();
-    const pos = event.type === 'touchmove'
-        ? getTouchPosition(frontCanvas, event)
-        : { x: event.clientX - rect.left, y: event.clientY - rect.top };
-
-    const newWidth = pos.x - photoX;
-    const newHeight = pos.y - photoY;
-
-    if (newWidth > 20 && newHeight > 20) {
-        photoWidth = newWidth;
-        photoHeight = newHeight;
-        updateCanvas();
-    }
-}
-
-function stopResize() {
-    resizing = false;
-    frontCanvas.removeEventListener('mousemove', resizePhoto);
-    frontCanvas.removeEventListener('mouseup', stopResize);
-    frontCanvas.removeEventListener('touchmove', resizePhoto);
-    frontCanvas.removeEventListener('touchend', stopResize);
-}
-
-function capitalizeWords(str) {
-    return str.replace(/\b\w/g, char => char.toUpperCase());
-}
-
-function updateCanvas() {
-    frontCtx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
-    frontCtx.drawImage(frontTemplate, 0, 0, frontCanvas.width, frontCanvas.height);
-
-    let name = document.getElementById('name').value;
-    name = capitalizeWords(name);
-    const idNumber = document.getElementById('idNumber').value;
-
-    if (photo) {
-        frontCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
-        backCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
-    }
-
-    frontCtx.font = 'normal 22px Ebrima';
-    frontCtx.fillStyle = 'white';
-    frontCtx.fillText(name, 33, 177);
-
-    frontCtx.font = '16px Ebrima';
-    frontCtx.fillText(`NIPPOS. ${idNumber}`, 33, 199);
-
-    backCtx.clearRect(0, 0, backCanvas.width, backCanvas.height);
-    backCtx.drawImage(backTemplate, 0, 0, backCanvas.width, backCanvas.height);
-
-    backCtx.font = 'normal 20px Ebrima';
-    backCtx.fillStyle = 'white';
-    backCtx.fillText(name, 34, 85);
-
-    backCtx.font = '14px Ebrima';
-    backCtx.fillText(`NIPPOS. ${idNumber}`, 34, 103);
-}
-
-function processPhoto() {
-    const file = document.getElementById('photoUpload').files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('image_file', file);
-
-    fetch('https://api.remove.bg/v1.0/removebg', {
-        method: 'POST',
-        headers: {
-            'X-Api-Key': 'eLkxc2Q5opqoYYAMXpcTHnsD'
-        },
-        body: formData
-    })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.blob();
-        })
-        .then((blob) => {
-            const url = URL.createObjectURL(blob);
-            photo = new Image();
-            photo.onload = () => {
-                updateCanvas();
-            };
-            photo.src = url;
-        })
-        .catch((error) => {
-            alert('Gagal memproses foto: ' + error.message);
-            updateCanvas(); 
-        });
-}
-
-function downloadCanvas() {
-    let name = document.getElementById('name').value;
-    name = capitalizeWords(name).replace(/[^a-zA-Z0-9]/g, '_');
-
-    // Download file untuk sisi depan
-    const frontLink = document.createElement('a');
-    frontLink.download = `${name}_depan.png`;
-    frontLink.href = frontCanvas.toDataURL();
-    frontLink.click();
-
-    // Download file untuk sisi belakang
-    const backLink = document.createElement('a');
-    backLink.download = `${name}_belakang.png`;
-    backLink.href = backCanvas.toDataURL();
-    backLink.click();
-}
 </script>
 
 </body>
