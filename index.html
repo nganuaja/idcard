@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ID Card Creator | pakposkeren</title>
 	<link rel="icon" href="assets/pakposkeren.png" type="image/x-icon">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
 	<style>
 		body {
@@ -44,6 +45,18 @@
 			color: #333;
 			font-weight: bold;
 		}
+		
+		.scroll-direction {
+			display: flex;
+			justify-content: space-between;
+			font-size: 14px;
+			color: #333;
+			font-weight: bold;
+		}
+
+		.scroll-direction i {
+			margin-top: 3px;
+		}
 
 		.controls label input {
 			width: 100%;
@@ -66,8 +79,7 @@
 		.controls .reset {
 			width: auto;
 			margin: 0 auto;
-		//	margin-left: 0 auto;
-			margin-bottom: 40px;
+			margin-bottom: 5px;
 			display: block;
 			padding: 10px;
 			background-color: #007bff;
@@ -169,6 +181,7 @@
 		}
     </style>
 </head>
+
 <body>
 	<div class="container">
         <div class="controls">
@@ -177,7 +190,9 @@
 				ID Card Creator
 				<p><i>by : pakposkeren (lagi)</i></p>
 			</h2>
+			
 			<hr>
+			
 			<p class="title" style="font-weight:bold;"><u>Input Data</u></p>
             <label for="name">
                 Nama :
@@ -192,45 +207,70 @@
                 <input type="file" id="photoUpload" accept="image/*" onchange="processPhoto()">
             </label>
 			<p style="font-size:12px;">* Latar pada foto diri akan secara otomatis dihapus menggunakan AI.</p>
+			
+			<hr>
+			
+			<button onclick="downloadCanvas()">
+				<i class="fas fa-save"></i> Download
+			</button>
         </div>
 
 		<div class="controls">
 			<p class="title" style="font-weight:bold;"><u>Pengaturan Foto</u></p>
 			<label for="brightnessBar">
-				Brightness:
-				<span id="brightnessValue">50%</span>
-				<input type="range" id="brightnessBar" min="0" max="100" value="50">
+				Kecerahan:
+				<span id="brightnessValue">100%</span>
+				<input type="range" id="brightnessBar" min="50" max="150" value="100">
 			</label>
 
 			<label for="contrastBar">
-				Contrast:
-				<span id="contrastValue">50%</span>
-				<input type="range" id="contrastBar" min="0" max="100" value="50">
+				Kontras:
+				<span id="contrastValue">100%</span>
+				<input type="range" id="contrastBar" min="50" max="150" value="100">
 			</label>
 
 			<label for="saturationBar">
-				Saturation:
-				<span id="saturationValue">50%</span>
-				<input type="range" id="saturationBar" min="0" max="100" value="50">
+				Saturasi:
+				<span id="saturationValue">100%</span>
+				<input type="range" id="saturationBar" min="50" max="150" value="100">
 			</label>
-
-			<label for="sharpnessBar">
-				Sharpness:
-				<span id="sharpnessValue">10</span>
-				<input type="range" id="sharpnessBar" min="0" max="10" value="10">
+			
+			<label for="photoX">
+			    <div class="scroll-direction">
+					<i class="fas fa-angle-double-left"></i> Kiri
+					<span style="font-weight: normal;">|</span>
+					Kanan <i class="fas fa-angle-double-right"></i>
+				</div>
+				<input type="range" id="photoX" min="0" max="638" value="0" oninput="updateCanvas()">
 			</label>
+			<label for="photoY">
+			    <div class="scroll-direction">
+					<i class="fas fa-angle-double-up"></i> Atas
+					<span style="font-weight: normal;">|</span>
+					Bawah <i class="fas fa-angle-double-down"></i>
+				</div>
+				<input type="range" id="photoY" min="0" max="1012" value="0" oninput="updateCanvas()">
+			</label>
+			<label for="photoWidth">
+				<div class="scroll-direction">
+					<i class="fas fa-angle-double-left"></i> - Lebar + <i class="fas fa-angle-double-right"></i>
+				</div>
+				<input type="range" id="photoWidth" min="50" max="638" value="638" oninput="updateCanvas()">
+			</label>
+			<label for="photoHeight">
+				<div class="scroll-direction">
+					<i class="fas fa-angle-double-up"></i> - Tinggi + <i class="fas fa-angle-double-down"></i>
+				</div>
+				<input type="range" id="photoHeight" min="50" max="1012" value="1012" oninput="updateCanvas()">
+			</label>
+			
 			<button class="reset" 
-				onclick="resetSettings()" title="Reset Settings">
-				&#x21BA; Reset Pengaturan
+				onclick="resetSettings()" title="Reset Pengaturan">
+				<i class="fas fa-redo"></i> Reset
 			</button>
-
-			<br>
-			<hr>
-			<button onclick="downloadCanvas()">Download</button>
 		</div>
-		
-		<canvas id="frontCard" width="340" height="540"></canvas>
-        <canvas id="backCard" width="340" height="540"></canvas>
+		<canvas id="frontCard" width="638" height="1012"></canvas>
+        <canvas id="backCard" width="638" height="1012"></canvas>
     </div>
 
 <script>
@@ -248,144 +288,53 @@
 	let photo = null;
 	let photoX = 0;
 	let photoY = 0;
-	let photoWidth = 100;
-	let photoHeight = 100;
-	let resizing = false;
-	let startX, startY;
+	let photoWidth = 638;
+	let photoHeight = 1012;
 
 	let brightness = 100;
 	let contrast = 100;
 	let saturation = 100;
-	let sharpness = 0;
+	
+	const SCALE_FACTOR = 4;
 
 	frontTemplate.onload = updateCanvas;
 	backTemplate.onload = updateCanvas;
 
-	function getTouchPosition(canvas, touchEvent) {
-		const rect = canvas.getBoundingClientRect();
-		const touch = touchEvent.touches[0];
-		return {
-			x: touch.clientX - rect.left,
-			y: touch.clientY - rect.top
-		};
-	}
-
-	frontCanvas.addEventListener('mousedown', handleStart);
-	frontCanvas.addEventListener('touchstart', handleStart);
-
-	function handleStart(event) {
-		event.preventDefault();
-		const rect = frontCanvas.getBoundingClientRect();
-		const pos = event.type === 'touchstart'
-			? getTouchPosition(frontCanvas, event)
-			: { x: event.clientX - rect.left, y: event.clientY - rect.top };
-
-		startX = pos.x;
-		startY = pos.y;
-
-		if (
-			startX > photoX &&
-			startX < photoX + photoWidth &&
-			startY > photoY &&
-			startY < photoY + photoHeight
-		) {
-			resizing = true;
-			frontCanvas.addEventListener('mousemove', resizePhoto);
-			frontCanvas.addEventListener('mouseup', stopResize);
-			frontCanvas.addEventListener('touchmove', resizePhoto);
-			frontCanvas.addEventListener('touchend', stopResize);
-		} else {
-			frontCanvas.addEventListener('mousemove', movePhoto);
-			frontCanvas.addEventListener('mouseup', stopMove);
-			frontCanvas.addEventListener('touchmove', movePhoto);
-			frontCanvas.addEventListener('touchend', stopMove);
-		}
-	}
-
-	function movePhoto(event) {
-		event.preventDefault();
-		const rect = frontCanvas.getBoundingClientRect();
-		const pos = event.type === 'touchmove'
-			? getTouchPosition(frontCanvas, event)
-			: { x: event.clientX - rect.left, y: event.clientY - rect.top };
-
-		photoX = pos.x - photoWidth / 2;
-		photoY = pos.y - photoHeight / 2;
-		updateCanvas();
-	}
-
-	function stopMove() {
-		frontCanvas.removeEventListener('mousemove', movePhoto);
-		frontCanvas.removeEventListener('mouseup', stopMove);
-		frontCanvas.removeEventListener('touchmove', movePhoto);
-		frontCanvas.removeEventListener('touchend', stopMove);
-	}
-
-	function resizePhoto(event) {
-		event.preventDefault();
-		const rect = frontCanvas.getBoundingClientRect();
-		const pos = event.type === 'touchmove'
-			? getTouchPosition(frontCanvas, event)
-			: { x: event.clientX - rect.left, y: event.clientY - rect.top };
-
-		const newWidth = pos.x - photoX;
-		const newHeight = pos.y - photoY;
-
-		if (newWidth > 20 && newHeight > 20) {
-			photoWidth = newWidth;
-			photoHeight = newHeight;
-			updateCanvas();
-		}
-	}
-
-	function stopResize() {
-		resizing = false;
-		frontCanvas.removeEventListener('mousemove', resizePhoto);
-		frontCanvas.removeEventListener('mouseup', stopResize);
-		frontCanvas.removeEventListener('touchmove', resizePhoto);
-		frontCanvas.removeEventListener('touchend', stopResize);
-	}
-
 	function capitalizeWords(str) {
 		return str.replace(/\b\w/g, char => char.toUpperCase());
 	}
-
+	
 	function updateCanvas() {
+		// Clear and draw the front card
 		frontCtx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
 		frontCtx.drawImage(frontTemplate, 0, 0, frontCanvas.width, frontCanvas.height);
 
-		let name = document.getElementById('name').value;
-		name = capitalizeWords(name);
+		const name = capitalizeWords(document.getElementById('name').value);
 		const idNumber = document.getElementById('idNumber').value;
 
 		if (photo) {
-			<!-- frontCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturation(${saturation}%) sharpness(${sharpness}%)`; -->
-			frontCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) blur(${10 - sharpness}px)`;
+			frontCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
 			frontCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
 			frontCtx.filter = 'none';
-
-			<!-- backCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturation(${saturation}%) sharpness(${sharpness}%)`; -->
-			<!-- backCtx.filter = `brightness(${brightness}%) contrast(${contrast}%)`; -->
-			backCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
-			backCtx.filter = 'none';
 		}
 
-		frontCtx.font = 'normal 22px Ebrima';
+		frontCtx.font = 'normal 44px Ebrima';
 		frontCtx.fillStyle = 'white';
-		frontCtx.fillText(name, 33, 177);
+		frontCtx.fillText(name, 62, 327);
 
-		frontCtx.font = '16px Ebrima';
-		frontCtx.fillText(`NIPPOS. ${idNumber}`, 33, 199);
+		frontCtx.font = '32px Ebrima';
+		frontCtx.fillText(`NIPPOS. ${idNumber}`, 62, 375);
 
+		// Clear and draw the back card
 		backCtx.clearRect(0, 0, backCanvas.width, backCanvas.height);
 		backCtx.drawImage(backTemplate, 0, 0, backCanvas.width, backCanvas.height);
 
-		backCtx.font = 'normal 20px Ebrima';
+		backCtx.font = 'normal 38px Ebrima';
 		backCtx.fillStyle = 'white';
-		backCtx.fillText(name, 34, 85);
+		backCtx.fillText(name, 63, 157);
 
-		backCtx.font = '14px Ebrima';
-		backCtx.fillText(`NIPPOS. ${idNumber}`, 34, 105);
+		backCtx.font = '26px Ebrima';
+		backCtx.fillText(`NIPPOS. ${idNumber}`, 63, 195);
 	}
 
 	function processPhoto() {
@@ -398,7 +347,7 @@
 		fetch('https://api.remove.bg/v1.0/removebg', {
 			method: 'POST',
 			headers: {
-				'X-Api-Key': 'eLkxc2Q5opqoYYAMXpcTHnsD'
+				'X-Api-Key': 'sFjZFWE6e83yrkgSEcHT5bGx'
 			},
 			body: formData
 		})
@@ -418,70 +367,99 @@
 			})
 			.catch((error) => {
 				alert('Gagal memproses foto: ' + error.message);
-				updateCanvas(); 
+				updateCanvas();
 			});
 	}
 
-	function downloadCanvas() {
-		let name = document.getElementById('name').value;
-		name = capitalizeWords(name).replace(/[^a-zA-Z0-9]/g, '_');
+	function createHighResCanvas(originalCanvas, scaleFactor) {
+		const highResCanvas = document.createElement('canvas');
+		highResCanvas.width = originalCanvas.width * scaleFactor;
+		highResCanvas.height = originalCanvas.height * scaleFactor;
 
-		// Download file untuk sisi depan
+		const highResCtx = highResCanvas.getContext('2d');
+		highResCtx.scale(scaleFactor, scaleFactor);
+
+		// Copy the content from the original canvas
+		highResCtx.drawImage(originalCanvas, 0, 0);
+
+		return highResCanvas;
+	}
+
+	function downloadCanvas() {
+		const name = capitalizeWords(document.getElementById('name').value).replace(/[^a-zA-Z0-9]/g, '_');
+
+		// Generate high-resolution front card
+		const highResFrontCanvas = createHighResCanvas(frontCanvas, SCALE_FACTOR);
 		const frontLink = document.createElement('a');
 		frontLink.download = `${name}_depan.png`;
-		frontLink.href = frontCanvas.toDataURL();
+		frontLink.href = highResFrontCanvas.toDataURL();
 		frontLink.click();
 
-		// Download file untuk sisi belakang
+		// Generate high-resolution back card
+		const highResBackCanvas = createHighResCanvas(backCanvas, SCALE_FACTOR);
 		const backLink = document.createElement('a');
 		backLink.download = `${name}_belakang.png`;
-		backLink.href = backCanvas.toDataURL();
+		backLink.href = highResBackCanvas.toDataURL();
 		backLink.click();
 	}
 
-	// Pengaturan brightness dan contrast
-const brightnessBar = document.getElementById('brightnessBar');
-const contrastBar = document.getElementById('contrastBar');
-const saturationBar = document.getElementById('saturationBar');
-const sharpnessBar = document.getElementById('sharpnessBar');
+	// Handle range input updates
+	document.getElementById('photoX').addEventListener('input', function() {
+		photoX = this.value;
+		updateCanvas();
+	});
 
-const brightnessValue = document.getElementById('brightnessValue');
-const contrastValue = document.getElementById('contrastValue');
-const saturationValue = document.getElementById('saturationValue');
-const sharpnessValue = document.getElementById('sharpnessValue');
+	document.getElementById('photoY').addEventListener('input', function() {
+		photoY = this.value;
+		updateCanvas();
+	});
 
-// Update displayed value when range changes
-brightnessBar.addEventListener('input', () => {
-  brightnessValue.textContent = `${brightnessBar.value}%`;
-});
+	document.getElementById('photoWidth').addEventListener('input', function() {
+		photoWidth = this.value;
+		updateCanvas();
+	});
 
-contrastBar.addEventListener('input', () => {
-  contrastValue.textContent = `${contrastBar.value}%`;
-});
+	document.getElementById('photoHeight').addEventListener('input', function() {
+		photoHeight = this.value;
+		updateCanvas();
+	});
+	
+	// Update display for range values
+	brightnessBar.addEventListener('input', () => {
+		brightness = brightnessBar.value;
+		updateCanvas();
+	});
 
-saturationBar.addEventListener('input', () => {
-  saturationValue.textContent = `${saturationBar.value}%`;
-});
+	contrastBar.addEventListener('input', () => {
+		contrast = contrastBar.value;
+		updateCanvas();
+	});
 
-sharpnessBar.addEventListener('input', () => {
-  sharpnessValue.textContent = sharpnessBar.value;
-});
+	saturationBar.addEventListener('input', () => {
+		saturation = saturationBar.value;
+		updateCanvas();
+	});
 
-// Reset all settings
-function resetSettings() {
-  brightnessBar.value = 50;
-  contrastBar.value = 50;
-  saturationBar.value = 50;
-  sharpnessBar.value = 10;
+	function resetSettings() {
+		brightnessBar.value = 100;
+		contrastBar.value = 100;
+		saturationBar.value = 100;
+		photoX = 0;
+		photoY = 0;
+		photoWidth = 638;
+		photoHeight = 1012;
 
-  brightnessValue.textContent = `50%`;
-  contrastValue.textContent = `50%`;
-  saturationValue.textContent = `50%`;
-  sharpnessValue.textContent = `10`;
+		brightness = 100;
+		contrast = 100;
+		saturation = 100;
 
-  updateCanvas(); // Optional if you need to refresh the canvas
-}
+		document.getElementById('photoX').value = photoX;
+		document.getElementById('photoY').value = photoY;
+		document.getElementById('photoWidth').value = photoWidth;
+		document.getElementById('photoHeight').value = photoHeight;
 
+		updateCanvas();
+	}
 </script>
 
 </body>
