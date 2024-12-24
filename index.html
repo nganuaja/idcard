@@ -74,6 +74,7 @@
 
 		.controls label input[type="range"] {
 			padding: 0px;
+			accent-color:#671bf7;
 		}
 		
 		.controls .reset {
@@ -82,7 +83,7 @@
 			margin-bottom: 5px;
 			display: block;
 			padding: 10px;
-			background-color: #007bff;
+			background-color: #f21173;
 			color: #fff;
 			border-radius: 4px;
 			font-size: 14px;
@@ -91,18 +92,18 @@
 		}
 		
 		.controls .reset:hover {
-			background-color: #0056b3;
+			background-color: #d40b62;
 		}
 
 		.controls .reset:active {
-			background-color: #004085;
+			background-color: #ad0950;
 		}
 		
 		.controls button {
 			display: inline-block;
 			width: 100%;
 			padding: 10px;
-			background-color: #8d0aff;
+			background-color: #671bf7;
 			color: #fff;
 			border: none;
 			border-radius: 4px;
@@ -117,11 +118,11 @@
 		}
 		
 		.controls button:hover {
-			background-color: #7904de;
+			background-color: #5611d9;
 		}
 
 		.controls button:active {
-			background-color: #6202b5;
+			background-color: #4007ad;
 		}
 
 		.title {
@@ -149,7 +150,7 @@
 		}
 		
 		canvas {
-			background: #fff;
+			background: #1C2D5A;
 			border: 1px solid #ddd;
 			border-radius: 8px;
 			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -219,20 +220,20 @@
 			<p class="title" style="font-weight:bold;"><u>Pengaturan Foto</u></p>
 			<label for="brightnessBar">
 				Kecerahan:
-				<span id="brightnessValue">100%</span>
-				<input type="range" id="brightnessBar" min="50" max="150" value="100">
+				<span id="brightnessValue">0%</span>
+				<input type="range" id="brightnessBar" min="0" max="200" value="100">
 			</label>
 
 			<label for="contrastBar">
 				Kontras:
-				<span id="contrastValue">100%</span>
-				<input type="range" id="contrastBar" min="50" max="150" value="100">
+				<span id="contrastValue">0%</span>
+				<input type="range" id="contrastBar" min="0" max="200" value="100">
 			</label>
 
 			<label for="saturationBar">
 				Saturasi:
-				<span id="saturationValue">100%</span>
-				<input type="range" id="saturationBar" min="50" max="150" value="100">
+				<span id="saturationValue">0%</span>
+				<input type="range" id="saturationBar" min="0" max="200" value="100">
 			</label>
 			
 			<label for="photoX">
@@ -241,7 +242,7 @@
 					<span style="font-weight: normal;">|</span>
 					Kanan <i class="fas fa-angle-double-right"></i>
 				</div>
-				<input type="range" id="photoX" min="0" max="638" value="0" oninput="updateCanvas()">
+				<input type="range" id="photoX" min="-600" max="600" value="0" oninput="updateCanvas()">
 			</label>
 			<label for="photoY">
 			    <div class="scroll-direction">
@@ -249,19 +250,19 @@
 					<span style="font-weight: normal;">|</span>
 					Bawah <i class="fas fa-angle-double-down"></i>
 				</div>
-				<input type="range" id="photoY" min="0" max="1012" value="0" oninput="updateCanvas()">
+				<input type="range" id="photoY" min="-900" max="900" value="0" oninput="updateCanvas()">
 			</label>
 			<label for="photoWidth">
 				<div class="scroll-direction">
 					<i class="fas fa-angle-double-left"></i> - Lebar + <i class="fas fa-angle-double-right"></i>
 				</div>
-				<input type="range" id="photoWidth" min="50" max="638" value="638" oninput="updateCanvas()">
+				<input type="range" id="photoWidth" min="50" max="1276" value="638" oninput="updateCanvas()">
 			</label>
 			<label for="photoHeight">
 				<div class="scroll-direction">
 					<i class="fas fa-angle-double-up"></i> - Tinggi + <i class="fas fa-angle-double-down"></i>
 				</div>
-				<input type="range" id="photoHeight" min="50" max="1012" value="1012" oninput="updateCanvas()">
+				<input type="range" id="photoHeight" min="50" max="2024" value="1012" oninput="updateCanvas()">
 			</label>
 			
 			<button class="reset" 
@@ -302,6 +303,12 @@
 
 	function capitalizeWords(str) {
 		return str.replace(/\b\w/g, char => char.toUpperCase());
+	}
+
+	function updateDisplay() {
+	  brightnessValue.textContent = `${brightnessBar.value-100}%`;
+	  contrastValue.textContent = `${contrastBar.value-100}%`;
+	  saturationValue.textContent = `${saturationBar.value-100}%`;
 	}
 	
 	function updateCanvas() {
@@ -427,16 +434,19 @@
 	// Update display for range values
 	brightnessBar.addEventListener('input', () => {
 		brightness = brightnessBar.value;
+		updateDisplay();
 		updateCanvas();
 	});
 
 	contrastBar.addEventListener('input', () => {
 		contrast = contrastBar.value;
+		updateDisplay();
 		updateCanvas();
 	});
 
 	saturationBar.addEventListener('input', () => {
 		saturation = saturationBar.value;
+		updateDisplay();
 		updateCanvas();
 	});
 
@@ -458,6 +468,7 @@
 		document.getElementById('photoWidth').value = photoWidth;
 		document.getElementById('photoHeight').value = photoHeight;
 
+		updateDisplay();
 		updateCanvas();
 	}
 </script>
