@@ -16,9 +16,11 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			flex-direction: column;
 			min-height: 100vh;
+			transition: transform 0.3s ease;
 		}
-
+		
 		.container {
 			display: flex;
 			flex-wrap: wrap;
@@ -26,6 +28,7 @@
 			justify-content: center;
 			align-items: flex-start;
 			padding: 10px;
+			padding-bottom: 80px;
 		}
 
 		.controls {
@@ -33,9 +36,10 @@
 			padding: 20px;
 			border-radius: 8px;
 			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-			max-width: 250px;
+			max-width: 300px;
 			width: 100%;
 			box-sizing: border-box;
+			padding-bottom: 60px;
 		}
 
 		.controls label {
@@ -46,16 +50,8 @@
 			font-weight: bold;
 		}
 		
-		.scroll-direction {
-			display: flex;
-			justify-content: space-between;
-			font-size: 14px;
-			color: #333;
-			font-weight: bold;
-		}
-
-		.scroll-direction i {
-			margin-top: 3px;
+		#content, #frontCard, #backCard {
+			transition: transform 0.3s ease;
 		}
 
 		.controls label input {
@@ -74,9 +70,9 @@
 
 		.controls label input[type="range"] {
 			padding: 0px;
-			accent-color:#671bf7;
+			accent-color: #671bf7;
 		}
-		
+
 		.controls .reset {
 			width: auto;
 			margin: 0 auto;
@@ -88,7 +84,7 @@
 			border-radius: 4px;
 			font-size: 14px;
 			cursor: pointer;
-			transition:background-color 0.3s ease; 
+			transition: background-color 0.3s ease;
 		}
 		
 		.controls .reset:hover {
@@ -98,7 +94,7 @@
 		.controls .reset:active {
 			background-color: #ad0950;
 		}
-		
+
 		.controls button {
 			display: inline-block;
 			width: 100%;
@@ -116,7 +112,7 @@
 			font-size: 16px;
 			color: #555;
 		}
-		
+
 		.controls button:hover {
 			background-color: #5611d9;
 		}
@@ -124,7 +120,19 @@
 		.controls button:active {
 			background-color: #4007ad;
 		}
+		
+		.scroll-direction {
+			display: flex;
+			justify-content: space-between;
+			font-size: 14px;
+			color: #333;
+			font-weight: bold;
+		}
 
+		.scroll-direction i {
+			margin-top: 3px;
+		}
+		
 		.title {
 			display: flex;
 			align-items: center;
@@ -158,12 +166,282 @@
 			max-width: 300px;
 			box-sizing: border-box;
 		}
+		
+		.modal {
+			display: none;
+			position: fixed;
+			bottom: 80px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 95%;
+			max-width: 1000px;
+			background-color: #fff;
+			box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+			border-radius: 10px 10px 0 0;
+			padding: 10px 20px 1px 20px;
+			z-index: 1000;
+			box-sizing: border-box;
+			overflow-y: auto;
+			
+		}
 
+		.modal.active {
+			display: block;
+		}
+
+		.modal-overlay {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0);
+			z-index: 999;
+			
+		}
+
+		.modal-overlay.active {
+			display: block;
+		}
+
+		.modal label {
+			display: block;
+			margin-bottom: 15px;
+			font-size: 14px;
+			color: #333;
+			font-weight: bold;
+		}
+
+		.modal input[type="range"] {
+			width: 100%;
+			margin-top: 5px;
+			accent-color: #671bf7;
+		}
+
+		.modal button {
+			margin-top: -10px;
+			background-color: #671bf7;
+			color: #fff;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+
+		.modal button:hover {
+			color: #ff0a70;
+		}
+
+		.modal button:active {
+			color: #9e0545;
+		}	
+		
+		.modal .close-btn {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			font-size: 24px;
+			color: #333;
+			background: none;
+			border: none;
+			cursor: pointer;
+		}
+
+		.footer-controls {
+			position: fixed;
+			overflow-x: auto;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			background-color: #fff;
+			display: flex;
+			justify-content: space-around;
+			padding: 10px;
+			box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+		}
+
+		.footer-controls button {
+			background: none;
+			border: none;
+			font-size: 26px;
+			cursor: pointer;
+		}
+		
+		.brightness-button i{
+			background-image: radial-gradient(circle, yellow, red);
+			-webkit-background-clip: text;
+			color: transparent;
+			transition: transform 0.6s ease, color 0.6s ease;
+		}
+		
+		.brightness-button:hover i {
+			transform: rotate(360deg) scale(1.3);
+			background-image: radial-gradient(circle, orange, yellow);
+		}
+		
+		.contrast-button i{
+			background-image: linear-gradient(to right, white, black);
+			-webkit-background-clip: text;
+			color: transparent;
+			transition: transform 0.6s ease, opacity 0.6s ease;
+		}
+		
+		.contrast-button:hover i {
+			transform: scale(1.3);
+			opacity: 0.8;
+		}
+		
+		.saturation-button i{
+			background-image: linear-gradient(to right, black, orange, red);
+			-webkit-background-clip: text;
+			color: transparent;
+			transition: transform 0.6s ease, opacity 0.6s ease;
+		}
+		
+		.saturation-button:hover i {
+			transform: rotateY(360deg) scale(1.3);
+			opacity: 0.8;
+		}
+		
+		.position-button i{
+			background-image: radial-gradient(circle, #e8076c, #6a18ed);
+			-webkit-background-clip: text;
+			color: transparent;
+			transition: transform 0.6s ease, color 0.6s ease;
+		}
+
+		@keyframes position-bounce-scale {
+			0% {
+				transform: translateY(0) scale(1);
+			}
+			25% {
+				transform: translateX(-10px) scale(1);
+			}
+			50% {
+				transform: translateY(-10px) scale(1);
+			}
+			75% {
+				transform: translateX(10px) scale(1);
+			}
+			100% {
+				transform: translateY(0) scale(1.3);
+			}
+		}
+
+		.position-button:hover i {
+			animation: position-bounce-scale 0.6s ease-in-out;
+			transform: scale(1.3);
+		}
+		
+		.size-button i{
+			background-image: radial-gradient(circle, #6a18ed, #e8076c);
+			-webkit-background-clip: text;
+			color: transparent;
+			transition: transform 0.6s ease, opacity 0.6s ease;
+		}
+		
+		.size-button:hover i {
+			transform: scale(1.3);
+			opacity: 0.8;
+		}
+		
+		.reset-button i{
+			background-image: linear-gradient(to right, #18a6ed, #6a18ed);
+			-webkit-background-clip: text;
+			color: transparent;
+			transition: transform 0.6s ease, color 0.6s ease;
+		}
+		
+		.reset-button:hover i {
+			transform: rotate(720deg) scale(1.3);
+			background-image: radial-gradient(circle, #6a18ed, #18a6ed);
+		}
+		
+		@keyframes reset-aktif {
+			0% {
+				transform: scale(1.3);
+			}
+			50% {
+				transform: scale(1);
+			}
+			100% {
+				transform: scale(1);
+			}
+		}
+		
+		.reset-button:active i {
+			animation: reset-aktif 0.2s ease-in-out;
+			transform: scale(1.3);
+		}
+
+		.download-button i{
+			background-image: linear-gradient(to bottom, #18a6ed, #6a18ed);
+			-webkit-background-clip: text;
+			color: transparent;
+			transition: transform 0.6s ease;
+		}
+
+		@keyframes bounce-scale {
+			0% {
+				transform: translateY(0) scale(1);
+			}
+			50% {
+				transform: translateY(10px) scale(1);
+			}
+			100% {
+				transform: translateY(0) scale(1.2);
+			}
+		}
+
+		.download-button:hover i {
+			animation: bounce-scale 0.6s ease-in-out;
+			transform: scale(1.2);
+		}
+
+		@keyframes download-aktif {
+			0% {
+				transform: scale(1.2);
+			}
+			50% {
+				transform: scale(1);
+			}
+			100% {
+				transform: scale(1);
+			}
+		}
+		
+		.download-button:active i {
+			animation: download-aktif 0.2s ease-in-out;
+			transform: scale(1.2);
+		}
+		
+		.footer-controls button i {
+			display: block;
+			font-size: 26px;
+			margin-bottom: 10px;
+		}
+		
+		.footer-controls button span {
+			display: block;
+			color:#6e05f7;
+			font-size:12px;
+		}
+
+		.footer-controls button:focus {
+			outline: none;
+		}
+			
 		@media (max-width: 768px) {
+			.container {
+				padding-top: 30px;
+				padding-bottom: 100px;
+			}
+			
 			.controls {
 				max-width: 80%;
 			}
-			
+
 			.title {
 				flex-direction: column;
 				gap: 5px;
@@ -172,29 +450,49 @@
 			canvas {
 				max-width: 80%;
 			}
-		}
-
-		@media (max-width: 480px) {
-			.controls button {
-				font-size: 14px;
-				padding: 8px;
+			
+			.footer-controls button {
+				font-size: 20px;
 			}
+			
+			.footer-controls button span {
+				font-size:10px;
+			}
+		
+			.modal {
+				display: none;
+				position: fixed;
+				bottom: 80px;
+				left: 50%;
+				transform: translateX(-50%);
+				width: 95%;
+				max-width: 1000px;
+				background-color: #fff;
+				box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+				border-radius: 10px 10px 0 0;
+				padding: 10px 20px 1px 20px;
+				z-index: 1000;
+				box-sizing: border-box;
+				overflow-y: auto;
+				
+			}
+
 		}
     </style>
 </head>
 
 <body>
-	<div class="container">
-        <div class="controls">
-			<h2 class="title">
-				<img src="assets/pakposkeren.png" alt="pakposkeren" height="70">
-				ID Card Creator
-				<p><i>by : pakposkeren (lagi)</i></p>
-			</h2>
-			
-			<hr>
-			
-			<p class="title" style="font-weight:bold;"><u>Input Data</u></p>
+    <div class="container">
+        <div class="controls" id="content">
+            <h2 class="title">
+                <img src="assets/pakposkeren.png" alt="pakposkeren" height="70">
+                ID Card Creator
+                <p><i>by : pakposkeren (lagi)</i></p>
+            </h2>
+
+            <hr>
+
+            <p class="title" style="font-weight:bold;"><u>Input Data</u></p>
             <label for="name">
                 Nama :
                 <input type="text" id="name" placeholder="Masukkan Nama" oninput="updateCanvas()">
@@ -207,74 +505,148 @@
                 Foto Diri :
                 <input type="file" id="photoUpload" accept="image/*" onchange="processPhoto()">
             </label>
-			<p style="font-size:12px;">* Latar pada foto diri akan secara otomatis dihapus menggunakan AI.</p>
-			
-			<hr>
-			
-			<button onclick="downloadCanvas()">
-				<i class="fas fa-save"></i> Download
-			</button>
+            <p style="font-size:12px; margin-bottom:-5px;">* Latar pada foto diri akan secara otomatis dihapus menggunakan AI.</p>
         </div>
 
-		<div class="controls">
-			<p class="title" style="font-weight:bold;"><u>Pengaturan Foto</u></p>
-			<label for="brightnessBar">
-				Kecerahan:
-				<span id="brightnessValue">0%</span>
-				<input type="range" id="brightnessBar" min="0" max="200" value="100">
-			</label>
-
-			<label for="contrastBar">
-				Kontras:
-				<span id="contrastValue">0%</span>
-				<input type="range" id="contrastBar" min="0" max="200" value="100">
-			</label>
-
-			<label for="saturationBar">
-				Saturasi:
-				<span id="saturationValue">0%</span>
-				<input type="range" id="saturationBar" min="0" max="200" value="100">
-			</label>
-			
-			<label for="photoX">
-			    <div class="scroll-direction">
-					<i class="fas fa-angle-double-left"></i> Kiri
-					<span style="font-weight: normal;">|</span>
-					Kanan <i class="fas fa-angle-double-right"></i>
-				</div>
-				<input type="range" id="photoX" min="-600" max="600" value="0" oninput="updateCanvas()">
-			</label>
-			<label for="photoY">
-			    <div class="scroll-direction">
-					<i class="fas fa-angle-double-up"></i> Atas
-					<span style="font-weight: normal;">|</span>
-					Bawah <i class="fas fa-angle-double-down"></i>
-				</div>
-				<input type="range" id="photoY" min="-900" max="900" value="0" oninput="updateCanvas()">
-			</label>
-			<label for="photoWidth">
-				<div class="scroll-direction">
-					<i class="fas fa-angle-double-left"></i> - Lebar + <i class="fas fa-angle-double-right"></i>
-				</div>
-				<input type="range" id="photoWidth" min="50" max="1276" value="638" oninput="updateCanvas()">
-			</label>
-			<label for="photoHeight">
-				<div class="scroll-direction">
-					<i class="fas fa-angle-double-up"></i> - Tinggi + <i class="fas fa-angle-double-down"></i>
-				</div>
-				<input type="range" id="photoHeight" min="50" max="2024" value="1012" oninput="updateCanvas()">
-			</label>
-			
-			<button class="reset" 
-				onclick="resetSettings()" title="Reset Pengaturan">
-				<i class="fas fa-redo"></i> Reset
-			</button>
-		</div>
 		<canvas id="frontCard" width="638" height="1012"></canvas>
-        <canvas id="backCard" width="638" height="1012"></canvas>
+		<canvas id="backCard" width="638" height="1012"></canvas>
+		
+		<div class="footer-controls">
+			<button onclick="openModal('brightness-modal')" class="brightness-button"><i class="fas fa-sun"></i><span>Kecerahan</span></button>
+			<button onclick="openModal('contrast-modal')" class="contrast-button"><i class="fas fa-circle"></i><span>Kontras</span></button>
+			<button onclick="openModal('saturation-modal')" class="saturation-button"><i class="fas fa-star"></i><span>Saturasi</span></button>
+			<button onclick="openModal('size-modal')" class="size-button"><i class="fas fa-arrows-alt"></i><span>Ukuran</span></button>
+			<button onclick="openModal('position-modal')" class="position-button"><i class="fas fa-crosshairs"></i><span>Posisi</span></button>
+			<button onclick="resetSettings()" class="reset-button"><i class="fas fa-redo"></i><span>Reset</span></button>
+			<button onclick="downloadCanvas()" class="download-button"><i class="fas fa-download"></i><span>Download</span></button>
+		</div>  
     </div>
 
+	<div class="modal-overlay"></div>
+
+    <!-- Modals for photo settings -->
+	<div id="brightness-modal" class="modal">
+		<button class="close-btn" onclick="closeModal('brightness-modal')">&times;</button>
+		<label for="brightnessBar">
+			<div class="scroll-direction">
+				<span></span><i class="fas fa-minus"></i>
+				<span style="font-weight: bold;">Kecerahan : <span id="brightnessValue">0%</span></span>
+				<i class="fas fa-plus"></i><span></span>
+			</div>
+			<input type="range" id="brightnessBar" min="0" max="200" value="100" oninput="updateCanvas()">
+		</label>
+	</div>
+
+    <div id="contrast-modal" class="modal">
+		<button class="close-btn" onclick="closeModal('contrast-modal')">&times;</button>
+        <label for="contrastBar">
+            <div class="scroll-direction">
+				<span></span><i class="fas fa-minus"></i>
+				<span style="font-weight: bold;">Kontras : <span id="contrastValue">0%</span></span>
+				<i class="fas fa-plus"></i><span></span>
+			</div>
+            <input type="range" id="contrastBar" min="0" max="200" value="100" oninput="updateCanvas()">
+        </label>
+    </div>
+
+    <div id="saturation-modal" class="modal">
+		<button class="close-btn" onclick="closeModal('saturation-modal')">&times;</button>
+        <label for="saturationBar">
+            <div class="scroll-direction">
+				<span></span><i class="fas fa-minus"></i>
+				<span style="font-weight: bold;">Saturasi : <span id="saturationValue">0%</span></span>
+				<i class="fas fa-plus"></i><span></span>
+			</div>
+            <input type="range" id="saturationBar" min="0" max="200" value="100" oninput="updateCanvas()">
+        </label>
+    </div>
+
+    <div id="size-modal" class="modal">
+		<button class="close-btn" onclick="closeModal('size-modal')">&times;</button>
+        <label for="photoWidth">
+            <div class="scroll-direction">
+				<span></span><i class="fas fa-minus"></i>
+				<span style="font-weight: bold;">Lebar</span>
+				<i class="fas fa-plus"></i><span></span>
+			</div>
+            <input type="range" id="photoWidth" min="50" max="1276" value="638" oninput="updateCanvas()">
+        </label>
+        <label for="photoHeight">
+            <div class="scroll-direction">
+				<span></span><i class="fas fa-minus"></i>
+				<span style="font-weight: bold;">Tinggi</span>
+				<i class="fas fa-plus"></i><span></span>
+			</div>
+            <input type="range" id="photoHeight" min="50" max="2024" value="1012" oninput="updateCanvas()">
+        </label>
+    </div>
+
+    <div id="position-modal" class="modal">
+		<button class="close-btn" onclick="closeModal('position-modal')">&times;</button>
+        <label for="photoX">
+            <div class="scroll-direction">
+				<span></span>Kiri<i class="fas fa-chevron-left"></i>
+				<span style="font-weight: bold;">Geser</span>
+				<i class="fas fa-chevron-right"></i>Kanan<span></span>
+			</div>
+            <input type="range" id="photoX" min="-600" max="600" value="0" oninput="updateCanvas()">
+        </label>
+        <label for="photoY">
+		    <div class="scroll-direction">
+				<span></span>Atas<i class="fas fa-chevron-up"></i>
+				<span style="font-weight: bold;">Geser</span>
+				<i class="fas fa-chevron-down"></i>Bawah<span></span>
+			</div>
+            <input type="range" id="photoY" min="-900" max="900" value="0" oninput="updateCanvas()">
+        </label>
+    </div>
+
+
+
 <script>
+	// --- Modal ---
+	function openModal(modalId) {
+		const modal = document.getElementById(modalId);
+		const overlay = document.querySelector('.modal-overlay');
+
+		if (!modal) return;
+
+		if (['brightness-modal', 'contrast-modal', 'saturation-modal'].includes(modalId)) {
+			content.style.transform = 'translateY(-60px)';
+			frontCard.style.transform = 'translateY(-60px)';
+			backCard.style.transform = 'translateY(-60px)';
+		}
+
+		if (['position-modal', 'size-modal'].includes(modalId)) {
+			content.style.transform = 'translateY(-115px)';
+			frontCard.style.transform = 'translateY(-115px)';
+			backCard.style.transform = 'translateY(-115px)';
+		}
+
+		modal.classList.add('active');
+		overlay.classList.add('active');
+	}
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        const overlay = document.querySelector('.modal-overlay');
+        modal.classList.remove('active');
+        overlay.classList.remove('active');
+		content.style.transform = 'translateY(0)';
+		frontCard.style.transform = 'translateY(0)';
+		backCard.style.transform = 'translateY(0)';
+    }
+
+    document.querySelector('.modal-overlay').addEventListener('click', () => {
+        document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('active'));
+        document.querySelector('.modal-overlay').classList.remove('active');
+				content.style.transform = 'translateY(0)';
+		frontCard.style.transform = 'translateY(0)';
+		backCard.style.transform = 'translateY(0)';
+    });
+	
+	//-------------------------------------------------
+
 	const frontCanvas = document.getElementById('frontCard');
 	const backCanvas = document.getElementById('backCard');
 	const frontCtx = frontCanvas.getContext('2d');
@@ -296,7 +668,7 @@
 	let contrast = 100;
 	let saturation = 100;
 	
-	const SCALE_FACTOR = 4;
+	const SCALE_FACTOR = 3;
 
 	frontTemplate.onload = updateCanvas;
 	backTemplate.onload = updateCanvas;
@@ -311,38 +683,56 @@
 	  saturationValue.textContent = `${saturationBar.value-100}%`;
 	}
 	
-	function updateCanvas() {
-		// Clear and draw the front card
-		frontCtx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
-		frontCtx.drawImage(frontTemplate, 0, 0, frontCanvas.width, frontCanvas.height);
+function updateCanvas() {
+	console.log("Updating canvas...");
+    const scaleFactor = SCALE_FACTOR;
 
-		const name = capitalizeWords(document.getElementById('name').value);
-		const idNumber = document.getElementById('idNumber').value;
+    // Set canvas size for high resolution
+    frontCanvas.width = 638 * scaleFactor;
+    frontCanvas.height = 1012 * scaleFactor;
+    backCanvas.width = 638 * scaleFactor;
+    backCanvas.height = 1012 * scaleFactor;
 
-		if (photo) {
-			frontCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
-			frontCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
-			frontCtx.filter = 'none';
-		}
+    frontCtx.scale(scaleFactor, scaleFactor);
+    backCtx.scale(scaleFactor, scaleFactor);
 
-		frontCtx.font = 'normal 44px Ebrima';
-		frontCtx.fillStyle = 'white';
-		frontCtx.fillText(name, 62, 327);
+    // Redraw front template
+    frontCtx.clearRect(0, 0, frontCanvas.width, frontCanvas.height);
+    frontCtx.drawImage(frontTemplate, 0, 0, frontCanvas.width / scaleFactor, frontCanvas.height / scaleFactor);
 
-		frontCtx.font = '32px Ebrima';
-		frontCtx.fillText(`NIPPOS. ${idNumber}`, 62, 375);
+    const name = capitalizeWords(document.getElementById('name').value);
+    const idNumber = document.getElementById('idNumber').value;
 
-		// Clear and draw the back card
-		backCtx.clearRect(0, 0, backCanvas.width, backCanvas.height);
-		backCtx.drawImage(backTemplate, 0, 0, backCanvas.width, backCanvas.height);
+    if (photo) {
+		console.log("Drawing photo on canvas...");
+        const scaledWidth = photoWidth * SCALE_FACTOR;
+        const scaledHeight = photoHeight * SCALE_FACTOR;
+        frontCtx.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`;
+        frontCtx.drawImage(photo, photoX, photoY, photoWidth, photoHeight);
+        frontCtx.filter = 'none';
+    }
 
-		backCtx.font = 'normal 38px Ebrima';
-		backCtx.fillStyle = 'white';
-		backCtx.fillText(name, 63, 157);
+    frontCtx.font = 'normal 44px Ebrima';
+    frontCtx.fillStyle = 'white';
+    frontCtx.fillText(name, 62, 327);
 
-		backCtx.font = '26px Ebrima';
-		backCtx.fillText(`NIPPOS. ${idNumber}`, 63, 195);
-	}
+    frontCtx.font = '32px Ebrima';
+    frontCtx.fillText(`NIPPOS. ${idNumber}`, 62, 375);
+
+    // Redraw back template
+    backCtx.clearRect(0, 0, backCanvas.width, backCanvas.height);
+    backCtx.drawImage(backTemplate, 0, 0, backCanvas.width / scaleFactor, backCanvas.height / scaleFactor);
+
+    backCtx.font = 'normal 38px Ebrima';
+    backCtx.fillStyle = 'white';
+    backCtx.fillText(name, 63, 157);
+
+    backCtx.font = '26px Ebrima';
+    backCtx.fillText(`NIPPOS. ${idNumber}`, 63, 195);
+	
+	console.log("Canvas updated successfully.");
+}
+
 
 	function processPhoto() {
 		const file = document.getElementById('photoUpload').files[0];
@@ -368,6 +758,7 @@
 				const url = URL.createObjectURL(blob);
 				photo = new Image();
 				photo.onload = () => {
+					console.log("Photo loaded successfully");
 					updateCanvas();
 				};
 				photo.src = url;
@@ -386,31 +777,29 @@
 		const highResCtx = highResCanvas.getContext('2d');
 		highResCtx.scale(scaleFactor, scaleFactor);
 
-		// Copy the content from the original canvas
-		highResCtx.drawImage(originalCanvas, 0, 0);
+		highResCtx.drawImage(originalCanvas, 0, 0, originalCanvas.width, originalCanvas.height);
 
 		return highResCanvas;
 	}
 
-	function downloadCanvas() {
-		const name = capitalizeWords(document.getElementById('name').value).replace(/[^a-zA-Z0-9]/g, '_');
+function downloadCanvas() {
+    const name = capitalizeWords(document.getElementById('name').value).replace(/[^a-zA-Z0-9]/g, '_');
 
-		// Generate high-resolution front card
-		const highResFrontCanvas = createHighResCanvas(frontCanvas, SCALE_FACTOR);
-		const frontLink = document.createElement('a');
-		frontLink.download = `${name}_depan.png`;
-		frontLink.href = highResFrontCanvas.toDataURL();
-		frontLink.click();
+    const highResFrontCanvas = createHighResCanvas(frontCanvas, SCALE_FACTOR);
+    const frontLink = document.createElement('a');
+    frontLink.download = `${name}_depan.png`;
+    frontLink.href = highResFrontCanvas.toDataURL('image/png', 1.0); // Maximum quality
+    console.log("Downloading front canvas...");
+	frontLink.click();
 
-		// Generate high-resolution back card
-		const highResBackCanvas = createHighResCanvas(backCanvas, SCALE_FACTOR);
-		const backLink = document.createElement('a');
-		backLink.download = `${name}_belakang.png`;
-		backLink.href = highResBackCanvas.toDataURL();
-		backLink.click();
-	}
+    const highResBackCanvas = createHighResCanvas(backCanvas, SCALE_FACTOR);
+    const backLink = document.createElement('a');
+    backLink.download = `${name}_belakang.png`;
+    backLink.href = highResBackCanvas.toDataURL('image/png', 1.0); // Maximum quality
+    console.log("Downloading back canvas...");
+	backLink.click();
+}
 
-	// Handle range input updates
 	document.getElementById('photoX').addEventListener('input', function() {
 		photoX = this.value;
 		updateCanvas();
@@ -431,7 +820,6 @@
 		updateCanvas();
 	});
 	
-	// Update display for range values
 	brightnessBar.addEventListener('input', () => {
 		brightness = brightnessBar.value;
 		updateDisplay();
