@@ -243,7 +243,8 @@ function processPhoto() {
 			photo.src = url;
 		})
 		.catch((error) => {
-			alert('Gagal memproses foto: ' + error.message);
+			// alert('Gagal memproses foto: ' + error.message);
+			Swal.fire('Gagal memproses foto: ' + error.message);
 			updateCanvas();
 		});
 }
@@ -275,17 +276,29 @@ function attemptDownload() {
 	resetError(photoInput);
 
 	if (!name) {
-		alert("Harap masukkan nama terlebih dahulu!");
+		Swal.fire({
+		  html: '<i class="fas fa-exclamation-triangle"  style="color:#fc03a1;"></i> <span style="font-size: 20px;">Masukkan nama terlebih dahulu!</span>',
+		  showConfirmButton: false,
+		  timer: 1000
+		});
 		setError(nameInput);
 		return;
 	}
 	if (!idNumber) {
-		alert("Harap masukkan nomor ID (NIPPOS) terlebih dahulu!");
+		Swal.fire({
+		  html: '<i class="fas fa-exclamation-triangle"  style="color:#fc03a1;"></i> <span style="font-size: 20px;">Masukkan Nippos/NIK terlebih dahulu!</span>',
+		  showConfirmButton: false,
+		  timer: 1000
+		});
 		setError(idNumberInput);
 		return;
 	}
 	if (!photo) {
-		alert("Harap unggah foto terlebih dahulu!");
+		Swal.fire({
+		  html: '<i class="fas fa-exclamation-triangle"  style="color:#fc03a1;"></i> <span style="font-size: 20px;">Unggah foto terlebih dahulu!</span>',
+		  showConfirmButton: false,
+		  timer: 1000
+		});
 		setError(photoInput);
 		return;
 	}
