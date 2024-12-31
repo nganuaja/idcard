@@ -34,16 +34,19 @@
             <label for="name">
                 Nama :
                 <input type="text" id="name" placeholder="Masukkan Nama" oninput="updateCanvas()">
+				<div class="error-message" id="nameError"></div>
             </label>
 			<label for="idNumber" id="idLabel">
 				NIPPOS :
 				<input type="text" id="idNumber" placeholder="Masukkan NIPPOS" oninput="updateCanvas()">
+				<div class="error-message" id="idNumberError"></div>
 			</label>
             <label for="photoUpload">
                 Foto Diri* :
                 <input type="file" id="photoUpload" accept="image/*" onchange="processPhoto()">
+				<div class="error-message" id="photoError"></div>
             </label>
-            <p style="font-size:12px; margin-bottom:-24px; color:#fc03a1;">* Latar pada foto diri akan secara otomatis dihapus menggunakan AI.</p>
+            <p style="font-size:12px; margin-bottom:-24px; color:#671bf7;">* Latar pada foto diri akan secara otomatis dihapus menggunakan AI.</p>
         </div>
 
 		<canvas id="frontCard" width="638" height="1012"></canvas>
