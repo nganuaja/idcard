@@ -81,21 +81,23 @@ function updateDisplay() {
 }
 
 function updateLabel() {
-const idType = document.getElementById('idType').value;
+	const idType = document.getElementById('idType').value;
+	const idLabel = document.getElementById('idLabel');
 
-const idLabel = document.getElementById('idLabel');
-if (idType === 'NIPPOS') {
-	idLabel.innerHTML = `
-		NIPPOS :
-		<input type="text" id="idNumber" placeholder="Masukkan NIPPOS" oninput="updateCanvas()">
-	`;
-} else if (idType === 'NIK') {
-	idLabel.innerHTML = `
-		NIK :
-		<input type="text" id="idNumber" placeholder="Masukkan NIK" oninput="updateCanvas()">
-	`;
-}
-updateCanvas();
+	if (idType === 'NIPPOS') {
+		idLabel.innerHTML = `
+			NIPPOS :
+			<input type="text" id="idNumber" placeholder="Masukkan NIPPOS" oninput="updateCanvas()">
+			<div class="error-message" id="idNumberError"></div>
+		`;
+	} else if (idType === 'NIK') {
+		idLabel.innerHTML = `
+			NIK :
+			<input type="text" id="idNumber" placeholder="Masukkan NIK" oninput="updateCanvas()">
+			<div class="error-message" id="idNumberError"></div>
+		`;
+	}
+	updateCanvas();
 }
 
 function drawJustifiedText(ctx, text, x, maxWidth, currentY, lineHeight) {
@@ -266,7 +268,12 @@ function attemptDownload() {
 	const nameInput = document.getElementById('name');
 	const idNumberInput = document.getElementById('idNumber');
 	const photoInput = document.getElementById('photoUpload');
-
+	const idType = document.getElementById('idType').value;
+	
+    const nameError = document.getElementById('nameError');
+    const idNumberError = document.getElementById('idNumberError');
+    const photoError = document.getElementById('photoError');
+	
 	const name = nameInput.value.trim();
 	const idNumber = idNumberInput.value.trim();
 	const photo = photoInput.files[0];
@@ -276,43 +283,45 @@ function attemptDownload() {
 	resetError(photoInput);
 
 	if (!name) {
-		Swal.fire({
-		  html: '<i class="fas fa-exclamation-triangle"  style="color:#fc03a1;"></i> <span style="font-size: 20px;">Masukkan nama terlebih dahulu!</span>',
-		  showConfirmButton: false,
-		  timer: 1000
-		});
-		setError(nameInput);
+		setError(nameInput, nameError, "Masukkan nama terlebih dahulu!");
 		return;
 	}
-	if (!idNumber) {
-		Swal.fire({
-		  html: '<i class="fas fa-exclamation-triangle"  style="color:#fc03a1;"></i> <span style="font-size: 20px;">Masukkan Nippos/NIK terlebih dahulu!</span>',
-		  showConfirmButton: false,
-		  timer: 1000
-		});
-		setError(idNumberInput);
-		return;
-	}
+    if (!idNumber) {
+        if (idType === 'NIPPOS') {
+            setError(idNumberInput, idNumberError, "Masukkan NIPPOS terlebih dahulu!");
+        } else if (idType === 'NIK') {
+            setError(idNumberInput, idNumberError, "Masukkan NIK terlebih dahulu!");
+        }
+        return;
+    }
 	if (!photo) {
-		Swal.fire({
-		  html: '<i class="fas fa-exclamation-triangle"  style="color:#fc03a1;"></i> <span style="font-size: 20px;">Unggah foto terlebih dahulu!</span>',
-		  showConfirmButton: false,
-		  timer: 1000
-		});
-		setError(photoInput);
+		setError(photoInput, photoError, "Unggah foto terlebih dahulu!");
 		return;
 	}
 
 	downloadCanvas();
 }
 
-function setError(inputElement) {
-	inputElement.classList.add('input-error');
-	inputElement.focus();
+function setError(input, errorElement, errorMessage) {
+    input.classList.add('input-error');
+    errorElement.textContent = errorMessage;
+    errorElement.classList.add('show');
+	
+    setTimeout(() => {
+        resetError(input, errorElement);
+    }, 1200);
+	
+	input.focus();
 }
 
-function resetError(inputElement) {
-	inputElement.classList.remove('input-error');
+function resetError(input, errorElement) {
+    input.classList.remove('input-error');
+    if (errorElement) {
+        errorElement.classList.remove('show');
+        setTimeout(() => {
+            errorElement.textContent = '';
+        }, 300);
+    }
 }
 
 function downloadCanvas() {

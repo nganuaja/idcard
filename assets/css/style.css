@@ -58,7 +58,7 @@ body {
 	padding-bottom: 60px;
 }
 
-.controls .title {
+.controls .title, .error-message{
 	display: flex;
 	align-items: center;
 	gap: 10px;
@@ -103,8 +103,23 @@ body {
 	accent-color: #671bf7;
 }
 		
+.error-message {
+    color: #fc03a1;
+    font-size: 14px;
+    margin-bottom: 5px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+	font-weight: normal;
+}
+
+.error-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 .input-error {
-	border: 2px solid red;
+	border: 1px solid #fc03a1;
 	animation: shake 0.3s;
 }
 
